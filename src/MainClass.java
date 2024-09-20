@@ -27,20 +27,12 @@ public class MainClass {
 	// "B" stands for Business Planes.
 
 	private static Scanner scan = new Scanner(System.in);
-	public static HashMap<String, HashMap<String, String>> planes = new HashMap<String, HashMap<String, String>>();
+	public static HashMap<String, ArrayList<String>> planes = new HashMap<String, ArrayList<String>>();
 	private static ArrayList<String> planesToAdd = new ArrayList<String>();
 	private static boolean frenchMode = false;
 
 	public static void main(String[] args) {
-		planesToAdd.add("FA3200-000001");
-		planesToAdd.add("TD400M-972137");
-		planesToAdd.add("TA3800-752820");
-		planesToAdd.add("MB3200-047250");
-		planesToAdd.add("MA380M-885985");
-		planesToAdd.add("BA3000-432980");
-
-		for (String plane : planesToAdd)
-			AddIncomingPlaneByID(plane);
+		Initialize();
 
 		int menuChoice = MainMenu(frenchMode);
 
@@ -104,11 +96,11 @@ public class MainClass {
 	private static boolean AddIncomingPlaneByID(String planeID) {
 		if (planeID.toUpperCase().matches("^[BFMT]{1}[A-E]{1}[0-9]{2}0[0M]{1}-[0-9]{6}$")
 				&& planes.get(planeID) == null) {
-			HashMap<String, String> samplePlane = new HashMap<String, String>();
-			samplePlane.put("program", planeID.substring(1, 6));
-			samplePlane.put("type", planeID.substring(0, 1));
-			samplePlane.put("actualState", "STD");
-			samplePlane.put("uniqueID", planeID.substring(7));
+			ArrayList<String> samplePlane = new ArrayList<String>();
+			samplePlane.add(planeID.substring(1, 6)); // 0 : Program
+			samplePlane.add(planeID.substring(0, 1)); // 1 : Type
+			samplePlane.add("STD"); // 2 : State
+			samplePlane.add(planeID.substring(7)); // 3 : 6-digit ID
 
 			planes.put(planeID, samplePlane);
 			return true;
@@ -121,61 +113,61 @@ public class MainClass {
 		System.out.println(frenchMode ? "PROGRAMME :   TYPE D'AVION :            GÉNÉRATION :      ÉTAT ACTUEL :         IDENTIFIANT :" : "PROGRAM :     PLANE TYPE :              GENERATION :      ACTUAL STATE :        FULL ID :");
 
 		// Formats each plane's data for further displaying
-		for (Map.Entry<String, HashMap<String, String>> plane : planes.entrySet()) {
+		for (Map.Entry<String, ArrayList<String>> plane : planes.entrySet()) {
 			String planeKey = plane.getKey();
-			HashMap<String, String> planeInfo = plane.getValue();
+			ArrayList<String> planeInfo = plane.getValue();
 
-			planeInfo.put("fullID", planeKey);
-			planeInfo.put("generation", ((String) planeInfo.get("program")).substring(0, 1) + "              ");
+			planeInfo.add(planeKey); // 4 : Full ID
+			planeInfo.add(((String) planeInfo.get(0)).substring(0, 1) + "              "); // 5 : Generation
 
-			planeInfo.put("programDisplayed", planeInfo.get("program").substring(0, 4)
-					+ (planeInfo.get("program").substring(4, 5).equals("M") ? "M" : " "));
+			planeInfo.add(planeInfo.get(0).substring(0, 4) // 6 : Program (formatted)
+					+ (planeInfo.get(0).substring(4, 5).equals("M") ? "M" : " "));
 
-			switch (planeInfo.get("type")) {
+			switch (planeInfo.get(1)) { // 7 : Type (formatted)
 			case "F":
-				planeInfo.put("fullType", "Fret Transport         ");
+				planeInfo.add("Fret Transport         ");
 				break;
 			case "T":
-				planeInfo.put("fullType", "Passenger Tourism      ");
+				planeInfo.add("Passenger Tourism      ");
 				break;
 			case "M":
-				planeInfo.put("fullType", "Military Transport     ");
+				planeInfo.add("Military Transport     ");
 				break;
 			case "B":
-				planeInfo.put("fullType", "Business Plane         ");
+				planeInfo.add("Business Plane         ");
 				break;
 			default:
-				planeInfo.put("fullType", "Transport not specified");
+				planeInfo.add("Transport not specified");
 				break;
 			}
 
-			switch (planeInfo.get("actualState")) {
+			switch (planeInfo.get(2)) { // 8 : State (formatted)
 			case "STD":
-				planeInfo.put("fullState", "In studying        ");
+				planeInfo.add("In studying        ");
 				break;
 			case "CPT":
-				planeInfo.put("fullState", "In conception      ");
+				planeInfo.add("In conception      ");
 				break;
 			case "DEF":
-				planeInfo.put("fullState", "In definition      ");
+				planeInfo.add("In definition      ");
 				break;
 			case "BLD":
-				planeInfo.put("fullState", "In build process   ");
+				planeInfo.add("In build process   ");
 				break;
 			case "SVC":
-				planeInfo.put("fullState", "In service         ");
+				planeInfo.add("In service         ");
 				break;
 			case "END":
-				planeInfo.put("fullState", "Service closed     ");
+				planeInfo.add("Service closed     ");
 				break;
 			default:
-				planeInfo.put("fullState", "State not specified");
+				planeInfo.add("State not specified");
 				break;
 			}
 
-			System.out.println(planeInfo.get("programDisplayed") + "         " + planeInfo.get("fullType") + "   "
-					+ planeInfo.get("generation") + "   " + planeInfo.get("fullState") + "   "
-					+ planeInfo.get("fullID"));
+			System.out.println(planeInfo.get(6) + "         " + planeInfo.get(7) + "   "
+					+ planeInfo.get(5) + "   " + planeInfo.get(8) + "   "
+					+ planeInfo.get(4));
 		}
 	}
 
@@ -188,4 +180,17 @@ public class MainClass {
 
 	// Displays a detailed view about a specific plane
 	// private static void DisplayPlaneDetails(String planeID)...
+	
+	// Testing initialization
+	private static void Initialize() {
+		planesToAdd.add("FA3200-000001");
+		planesToAdd.add("TD400M-972137");
+		planesToAdd.add("TA3800-752820");
+		planesToAdd.add("MB3200-047250");
+		planesToAdd.add("MA380M-885985");
+		planesToAdd.add("BA3000-432980");
+
+		for (String plane : planesToAdd)
+			AddIncomingPlaneByID(plane);		
+	}
 }
